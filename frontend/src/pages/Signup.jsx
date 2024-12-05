@@ -25,7 +25,8 @@ const Signup = () => {
 
   const handleSubmit = async () => {
     try {
-      await axios.post("http://localhost:3000/api/v1/user/signup", formData);
+      const res = await axios.post("http://localhost:3000/api/v1/user/signup", formData);
+      localStorage.setItem("token", res?.data?.token);
       setFormData(initialData);
       navigate("/dashboard");
     } catch (error) {

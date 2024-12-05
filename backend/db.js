@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
-const { Schema, number } = require("zod");
+require("dotenv").config();
 
-mongoose.connect("mongodb+srv://walisantunu:WkNefBVfgtFPVYDD@cluster0.8cpsi.mongodb.net/paytm").then(() => {
+mongoose.connect(process.env.MONGO_URI).then(() => {
     console.log('database connected');
 })
 

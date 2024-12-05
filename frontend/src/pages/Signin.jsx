@@ -25,6 +25,7 @@ const Signin = () => {
   const handleSubmit = async () => {
     try {
       const res = await axios.post("http://localhost:3000/api/v1/user/signin", formData);
+      localStorage.setItem("token", res?.data?.token);
       console.log(res.data);
       navigate("/dashboard");
     } catch (error) {
