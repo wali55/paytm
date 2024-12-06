@@ -25,7 +25,9 @@ router.post("/transfer", authMiddleware, async (req, res) => {
       return res.status(400).json({ msg: "Invalid transfer amount." });
     }
 
-    const account = await Account.findOne({ userId: req.userId }).session(session);
+    const account = await Account.findOne({ userId: req.userId }).session(
+      session
+    );
     if (!account || account.balance < numAmount) {
       return res.status(400).json({ msg: "Insufficient balance." });
     }

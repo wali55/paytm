@@ -30,7 +30,7 @@ router.post("/signup", async (req, res) => {
     password,
   });
 
- const hash = await bcrypt.hash(password, 10);
+  const hash = await bcrypt.hash(password, 10);
 
   if (userValidation.success) {
     const user = await User.findOne({ username });
@@ -46,8 +46,8 @@ router.post("/signup", async (req, res) => {
 
     await Account.create({
       userId: newUser._id,
-      balance: 1 + Math.round(Math.random() * 1000)
-    })
+      balance: 1 + Math.round(Math.random() * 1000),
+    });
 
     const token = jwt.sign({ userId: newUser._id }, JWT_SECRET);
     return res.status(201).json({
@@ -67,13 +67,13 @@ router.post("/signin", async (req, res) => {
   if (!user) {
     return res.status(400).json({ msg: "Invalid credentials!" });
   }
-  
+
   const isMatched = await bcrypt.compare(password, user?.password);
 
   if (!isMatched) {
     return res.status(400).json({ msg: "Invalid credentials!" });
   }
-  
+
   const token = jwt.sign({ userId: user._id }, JWT_SECRET);
   return res.status(200).json({ token: `Bearer ${token}` });
 });
@@ -91,7 +91,7 @@ router.put("/", authMiddleware, async (req, res) => {
     if (userUpdateValidation.success) {
       await User.findOneAndUpdate(
         { _id: req?.userId },
-        {$set: { password, firstName, lastName }}
+        { $set: { password, firstName, lastName } }
       );
       return res.status(200).json({ msg: "User updated successfully" });
     } else {
@@ -103,14 +103,26 @@ router.put("/", authMiddleware, async (req, res) => {
 });
 
 router.get("/bulk", authMiddleware, async (req, res) => {
-    const searchedText = req.query['filter'] || "";
-    const users = await User.find({$or: [{firstName: {'$regex' : searchedText, '$options' : "i"}}, {lastName: {'$regex' : searchedText, '$options' : "i"}}]});
-    res.json({returnedUsers: users.map((user) => ({
-        username: user.username,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        _id: user._id
-    }))});
-})
+  const searchedText = req.query["filter"] || "";
+  const users = await User.find({
+    $and: [
+      { _id: { $ne: req?.userId } },
+      {
+        $or: [
+          { firstName: { $regex: searchedText, $options: "i" } },
+          { lastName: { $regex: searchedText, $options: "i" } },
+        ],
+      },
+    ],
+  });
+  res.json({
+    returnedUsers: users.map((user) => ({
+      username: user.username,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      _id: user._id,
+    })),
+  });
+});
 
 module.exports = router;
