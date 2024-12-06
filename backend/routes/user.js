@@ -3,9 +3,9 @@ const router = express.Router();
 const { z } = require("zod");
 const { User, Account } = require("../db");
 const jwt = require("jsonwebtoken");
-const JWT_SECRET = require("../config");
 const { authMiddleware } = require("../middleware/middleware");
 const bcrypt = require("bcrypt");
+require("dotenv").config();
 
 const userSchema = z.object({
   username: z.string().email().trim().toLowerCase(),
@@ -49,7 +49,7 @@ router.post("/signup", async (req, res) => {
       balance: 1 + Math.round(Math.random() * 1000),
     });
 
-    const token = jwt.sign({ userId: newUser._id }, JWT_SECRET);
+    const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET);
     return res.status(201).json({
       msg: "User created successfully!",
       newUser,
@@ -74,7 +74,7 @@ router.post("/signin", async (req, res) => {
     return res.status(400).json({ msg: "Invalid credentials!" });
   }
 
-  const token = jwt.sign({ userId: user._id }, JWT_SECRET);
+  const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
   return res.status(200).json({ token: `Bearer ${token}` });
 });
 
